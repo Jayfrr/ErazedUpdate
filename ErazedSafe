@@ -1,0 +1,1723 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/WetCheezit/Bracket-V2/main/src.lua"))()
+
+-- Window
+local Window, MainGUI = Library:CreateWindow("ERAZED PREMIUM ")
+
+-- Tabs
+local Tab1 = Window:CreateTab("Legit")
+
+local Tab2 = Window:CreateTab("Player")
+
+local Tab4 = Window:CreateTab("Visuals")
+
+local Tab3 = Window:CreateTab("Info")
+
+
+
+
+
+
+local Groupbox1 = Tab1:CreateGroupbox("Aim", "Left")
+local Groupbox2 = Tab1:CreateGroupbox("Anti Lock", "Right")
+
+local Groupbox3 = Tab2:CreateGroupbox("Movement", "Left")
+local Groupbox4 = Tab4:CreateGroupbox("Field Of View", "Left")
+
+local Groupbox5 = Tab4:CreateGroupbox("ESP", "Right")
+
+-- Groupbox 1
+
+
+
+
+local ExampleButton = Groupbox1:CreateButton("Aim Bot (C)", function()
+    getgenv().Aimbot = {
+        Status = true,
+        Keybind  = 'C',
+        Hitpart = 'Head',
+        ['Prediction'] = {
+            X = 0,
+            Y = 0,
+        },
+    }
+     
+    if getgenv().AimbotRan then
+        return
+    else
+        getgenv().AimbotRan = true
+    end
+    -- make it reexecutable to update settings
+     
+     
+    local RunService = game:GetService('RunService')
+    local Workspace = game:GetService('Workspace')
+    local Players = game:GetService('Players')
+     
+    local LocalPlayer = Players.LocalPlayer
+    local Camera = Workspace.CurrentCamera
+    local Mouse = LocalPlayer:GetMouse()
+     
+    local Player = nil -- Our target player
+     
+     
+    local GetClosestPlayer = function() -- // Optimized GetClosestPlayer i believe?
+        local ClosestDistance, ClosestPlayer = 100000, nil
+        for _, Player : Player in pairs(Players:GetPlayers()) do
+            if Player.Name ~= LocalPlayer.Name and Player.Character and Player.Character:FindFirstChild('HumanoidRootPart') then
+                local Root, Visible = Camera:WorldToScreenPoint(Player.Character.HumanoidRootPart.Position)
+                if not Visible then
+                    continue
+                end
+                Root = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(Root.X, Root.Y)).Magnitude
+                if Root < ClosestDistance then
+                    ClosestPlayer = Player
+                    ClosestDistance = Root
+                end
+            end
+        end
+        return ClosestPlayer
+    end
+     
+    Mouse.KeyDown:Connect(function(key) -- Get our closest player (toggle)
+        if key == Aimbot.Keybind:lower() then
+            Player = not Player and GetClosestPlayer() or nil
+        end
+    end)
+     
+    RunService.RenderStepped:Connect(function()
+        if not Player then
+            return
+        end
+        if not Aimbot.Status then
+            return
+        end
+        local Hitpart = Player.Character:FindFirstChild(Aimbot.Hitpart)
+        if not Hitpart then
+            return
+        end
+    Camera.CFrame = CFrame.new(Camera.CFrame.Position, Hitpart.Position + Hitpart.Velocity * Vector3.new(Aimbot.Prediction.X, Aimbot.Prediction.Y, Aimbot.Prediction.X))
+    end)
+    print("Silent Aim Activated")
+end)
+
+
+local ExampleButton = Groupbox1:CreateButton("Trigger Bot (E)", function()
+    -- Instructions: To enable the triggerbot, press E, to change the keybind go down to instruction 2.
+
+-- // Variables \\ --
+
+_G.triggerbot = false
+
+local player = game:GetService("Players").LocalPlayer
+local mouse = player:GetMouse()
+
+local Clicked = false
+
+-- // Side Scripts \\ --
+
+game:GetService("UserInputService").InputBegan:connect(function(Input, GameProcessedEvent)
+	if GameProcessedEvent then
+		return
+	end
+
+	if Input.KeyCode == Enum.KeyCode.E then -- Instruction 2: To change the keybind, change the "Enum.KeyCode.E" to "Enum.KeyCode.(TheKey)" for changing your keybind.
+		_G.triggerbot = not _G.triggerbot
+	end
+end)
+
+-- // Main Scripts \\ --
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if (mouse.Target.Parent:FindFirstChildOfClass("Humanoid") or mouse.Target.Parent.Parent:FindFirstChildOfClass("Humanoid")) and _G.triggerbot and mouse.Target.Parent.Name ~= player.Name then
+		local humanoid = mouse.Target.Parent:FindFirstChildOfClass("Humanoid") or mouse.Target.Parent.Parent:FindFirstChildOfClass("Humanoid")
+		
+		if humanoid.Health >= 1 then
+			local name = mouse.Target.Parent.Name
+
+			mouse1press()
+			Clicked = false
+		end
+	elseif _G.triggerbot and not Clicked then
+		mouse1release()
+	elseif not _G.triggerbot and (mouse.Target.Parent:FindFirstChildOfClass("Humanoid") or mouse.Target.Parent.Parent:FindFirstChildOfClass("Humanoid")) then
+		Clicked = true
+	end
+end)
+    print("activated triggerbbot")
+end)
+
+
+
+local Groupbox7 = Tab1:CreateGroupbox("Custom ChrossHair", "Left")
+
+local ExampleButton = Groupbox7:CreateButton("Size 20", function()
+local function API_Check()
+    if Drawing == nil then
+        return "No"
+    else
+        return "Yes"
+    end
+end
+
+local Find_Required = API_Check()
+
+if Find_Required == "No" then
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Info";
+        Text = "Crosshair script could not be loaded because your exploit is unsupported.";
+        Duration = math.huge;
+        Button1 = "OK"
+    })
+
+    return
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local ViewportSize_ = Camera.ViewportSize / 2
+local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+_G.SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
+_G.DefaultSettings = false   -- If set to true then the script would create a crosshair with the default settings regardless of any changes.
+_G.ToMouse = false   -- If set to true then the crosshair will be positioned to your mouse cursor's position. If set to false it will be positioned to the center of your screen.
+
+_G.CrosshairVisible = true   -- If set to true then the crosshair would be visible and vice versa.
+_G.CrosshairSize = 20   -- The size of the crosshair.
+_G.CrosshairThickness = 2   -- The thickness of the crosshair.
+_G.CrosshairColor = Color3.fromRGB(0,0,255)   -- The color of the crosshair
+_G.CrosshairTransparency = 1   -- The transparency of the crosshair.
+
+_G.DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+
+RunService.RenderStepped:Connect(function()
+    local Real_Size = _G.CrosshairSize / 2
+
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = _G.CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = _G.CrosshairTransparency
+    
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = _G.CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = _G.CrosshairTransparency
+    
+    if _G.ToMouse == true then
+        HorizontalLine.From = Vector2.new(UserInputService:GetMouseLocation().X - Real_Size, UserInputService:GetMouseLocation().Y)
+        HorizontalLine.To = Vector2.new(UserInputService:GetMouseLocation().X + Real_Size, UserInputService:GetMouseLocation().Y)
+        
+        VerticalLine.From = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y - Real_Size)
+        VerticalLine.To = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y + Real_Size)
+    elseif _G.ToMouse == false then
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+    
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+if _G.DefaultSettings == true then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 70
+    _G.CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    _G.CrosshairTransparency = 0.15
+    _G.DisableKey = Enum.KeyCode.Q
+end
+
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.KeyCode == _G.DisableKey and Typing == false then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+        
+        if _G.SendNotifications == true then
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "Info";
+                Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
+                Duration = 5;
+            })
+        end
+    end
+end)
+    print("Pressed")
+end)
+
+
+
+local ExampleButton = Groupbox7:CreateButton("Size 40", function()
+local function API_Check()
+    if Drawing == nil then
+        return "No"
+    else
+        return "Yes"
+    end
+end
+
+local Find_Required = API_Check()
+
+if Find_Required == "No" then
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Info";
+        Text = "Crosshair script could not be loaded because your exploit is unsupported.";
+        Duration = math.huge;
+        Button1 = "OK"
+    })
+
+    return
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local ViewportSize_ = Camera.ViewportSize / 2
+local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+_G.SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
+_G.DefaultSettings = false   -- If set to true then the script would create a crosshair with the default settings regardless of any changes.
+_G.ToMouse = false   -- If set to true then the crosshair will be positioned to your mouse cursor's position. If set to false it will be positioned to the center of your screen.
+
+_G.CrosshairVisible = true   -- If set to true then the crosshair would be visible and vice versa.
+_G.CrosshairSize = 40   -- The size of the crosshair.
+_G.CrosshairThickness = 2   -- The thickness of the crosshair.
+_G.CrosshairColor = Color3.fromRGB(0,0,255)   -- The color of the crosshair
+_G.CrosshairTransparency = 1   -- The transparency of the crosshair.
+
+_G.DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+
+RunService.RenderStepped:Connect(function()
+    local Real_Size = _G.CrosshairSize / 2
+
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = _G.CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = _G.CrosshairTransparency
+    
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = _G.CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = _G.CrosshairTransparency
+    
+    if _G.ToMouse == true then
+        HorizontalLine.From = Vector2.new(UserInputService:GetMouseLocation().X - Real_Size, UserInputService:GetMouseLocation().Y)
+        HorizontalLine.To = Vector2.new(UserInputService:GetMouseLocation().X + Real_Size, UserInputService:GetMouseLocation().Y)
+        
+        VerticalLine.From = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y - Real_Size)
+        VerticalLine.To = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y + Real_Size)
+    elseif _G.ToMouse == false then
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+    
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+if _G.DefaultSettings == true then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 70
+    _G.CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    _G.CrosshairTransparency = 0.15
+    _G.DisableKey = Enum.KeyCode.Q
+end
+
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.KeyCode == _G.DisableKey and Typing == false then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+        
+        if _G.SendNotifications == true then
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "Info";
+                Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
+                Duration = 5;
+            })
+        end
+    end
+end)
+    print("Pressed")
+end)
+
+
+local ExampleButton = Groupbox7:CreateButton("Size 50", function()
+local function API_Check()
+    if Drawing == nil then
+        return "No"
+    else
+        return "Yes"
+    end
+end
+
+local Find_Required = API_Check()
+
+if Find_Required == "No" then
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Info";
+        Text = "Crosshair script could not be loaded because your exploit is unsupported.";
+        Duration = math.huge;
+        Button1 = "OK"
+    })
+
+    return
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local ViewportSize_ = Camera.ViewportSize / 2
+local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+_G.SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
+_G.DefaultSettings = false   -- If set to true then the script would create a crosshair with the default settings regardless of any changes.
+_G.ToMouse = false   -- If set to true then the crosshair will be positioned to your mouse cursor's position. If set to false it will be positioned to the center of your screen.
+
+_G.CrosshairVisible = true   -- If set to true then the crosshair would be visible and vice versa.
+_G.CrosshairSize = 50   -- The size of the crosshair.
+_G.CrosshairThickness = 2   -- The thickness of the crosshair.
+_G.CrosshairColor = Color3.fromRGB(0,0,255)   -- The color of the crosshair
+_G.CrosshairTransparency = 1   -- The transparency of the crosshair.
+
+_G.DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+
+RunService.RenderStepped:Connect(function()
+    local Real_Size = _G.CrosshairSize / 2
+
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = _G.CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = _G.CrosshairTransparency
+    
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = _G.CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = _G.CrosshairTransparency
+    
+    if _G.ToMouse == true then
+        HorizontalLine.From = Vector2.new(UserInputService:GetMouseLocation().X - Real_Size, UserInputService:GetMouseLocation().Y)
+        HorizontalLine.To = Vector2.new(UserInputService:GetMouseLocation().X + Real_Size, UserInputService:GetMouseLocation().Y)
+        
+        VerticalLine.From = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y - Real_Size)
+        VerticalLine.To = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y + Real_Size)
+    elseif _G.ToMouse == false then
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+    
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+if _G.DefaultSettings == true then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 70
+    _G.CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    _G.CrosshairTransparency = 0.15
+    _G.DisableKey = Enum.KeyCode.Q
+end
+
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.KeyCode == _G.DisableKey and Typing == false then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+        
+        if _G.SendNotifications == true then
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "Info";
+                Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
+                Duration = 5;
+            })
+        end
+    end
+end)
+    print("Pressed")
+end)
+
+
+local ExampleButton = Groupbox7:CreateButton("Size 60", function()
+local function API_Check()
+    if Drawing == nil then
+        return "No"
+    else
+        return "Yes"
+    end
+end
+
+local Find_Required = API_Check()
+
+if Find_Required == "No" then
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Info";
+        Text = "Crosshair script could not be loaded because your exploit is unsupported.";
+        Duration = math.huge;
+        Button1 = "OK"
+    })
+
+    return
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local ViewportSize_ = Camera.ViewportSize / 2
+local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+_G.SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
+_G.DefaultSettings = false   -- If set to true then the script would create a crosshair with the default settings regardless of any changes.
+_G.ToMouse = false   -- If set to true then the crosshair will be positioned to your mouse cursor's position. If set to false it will be positioned to the center of your screen.
+
+_G.CrosshairVisible = true   -- If set to true then the crosshair would be visible and vice versa.
+_G.CrosshairSize = 65   -- The size of the crosshair.
+_G.CrosshairThickness = 2   -- The thickness of the crosshair.
+_G.CrosshairColor = Color3.fromRGB(0,0,255)   -- The color of the crosshair
+_G.CrosshairTransparency = 1   -- The transparency of the crosshair.
+
+_G.DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+
+RunService.RenderStepped:Connect(function()
+    local Real_Size = _G.CrosshairSize / 2
+
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = _G.CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = _G.CrosshairTransparency
+    
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = _G.CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = _G.CrosshairTransparency
+    
+    if _G.ToMouse == true then
+        HorizontalLine.From = Vector2.new(UserInputService:GetMouseLocation().X - Real_Size, UserInputService:GetMouseLocation().Y)
+        HorizontalLine.To = Vector2.new(UserInputService:GetMouseLocation().X + Real_Size, UserInputService:GetMouseLocation().Y)
+        
+        VerticalLine.From = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y - Real_Size)
+        VerticalLine.To = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y + Real_Size)
+    elseif _G.ToMouse == false then
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+    
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+if _G.DefaultSettings == true then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 70
+    _G.CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    _G.CrosshairTransparency = 0.15
+    _G.DisableKey = Enum.KeyCode.Q
+end
+
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.KeyCode == _G.DisableKey and Typing == false then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+        
+        if _G.SendNotifications == true then
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "Info";
+                Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
+                Duration = 5;
+            })
+        end
+    end
+end)
+    print("Pressed")
+end)
+
+
+local ExampleButton = Groupbox7:CreateButton("Size 70", function()
+local function API_Check()
+    if Drawing == nil then
+        return "No"
+    else
+        return "Yes"
+    end
+end
+
+local Find_Required = API_Check()
+
+if Find_Required == "No" then
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Info";
+        Text = "Crosshair script could not be loaded because your exploit is unsupported.";
+        Duration = math.huge;
+        Button1 = "OK"
+    })
+
+    return
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local ViewportSize_ = Camera.ViewportSize / 2
+local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+_G.SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
+_G.DefaultSettings = false   -- If set to true then the script would create a crosshair with the default settings regardless of any changes.
+_G.ToMouse = false   -- If set to true then the crosshair will be positioned to your mouse cursor's position. If set to false it will be positioned to the center of your screen.
+
+_G.CrosshairVisible = true   -- If set to true then the crosshair would be visible and vice versa.
+_G.CrosshairSize = 70   -- The size of the crosshair.
+_G.CrosshairThickness = 2   -- The thickness of the crosshair.
+_G.CrosshairColor = Color3.fromRGB(0,0,255)   -- The color of the crosshair
+_G.CrosshairTransparency = 1   -- The transparency of the crosshair.
+
+_G.DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+
+RunService.RenderStepped:Connect(function()
+    local Real_Size = _G.CrosshairSize / 2
+
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = _G.CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = _G.CrosshairTransparency
+    
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = _G.CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = _G.CrosshairTransparency
+    
+    if _G.ToMouse == true then
+        HorizontalLine.From = Vector2.new(UserInputService:GetMouseLocation().X - Real_Size, UserInputService:GetMouseLocation().Y)
+        HorizontalLine.To = Vector2.new(UserInputService:GetMouseLocation().X + Real_Size, UserInputService:GetMouseLocation().Y)
+        
+        VerticalLine.From = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y - Real_Size)
+        VerticalLine.To = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y + Real_Size)
+    elseif _G.ToMouse == false then
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+    
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+if _G.DefaultSettings == true then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 70
+    _G.CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    _G.CrosshairTransparency = 0.15
+    _G.DisableKey = Enum.KeyCode.Q
+end
+
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.KeyCode == _G.DisableKey and Typing == false then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+        
+        if _G.SendNotifications == true then
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "Info";
+                Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
+                Duration = 5;
+            })
+        end
+    end
+end)
+    print("Pressed")
+end)
+
+
+local ExampleButton = Groupbox7:CreateButton("Size 80", function()
+local function API_Check()
+    if Drawing == nil then
+        return "No"
+    else
+        return "Yes"
+    end
+end
+
+local Find_Required = API_Check()
+
+if Find_Required == "No" then
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "Info";
+        Text = "Crosshair script could not be loaded because your exploit is unsupported.";
+        Duration = math.huge;
+        Button1 = "OK"
+    })
+
+    return
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local ViewportSize_ = Camera.ViewportSize / 2
+local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+_G.SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
+_G.DefaultSettings = false   -- If set to true then the script would create a crosshair with the default settings regardless of any changes.
+_G.ToMouse = false   -- If set to true then the crosshair will be positioned to your mouse cursor's position. If set to false it will be positioned to the center of your screen.
+
+_G.CrosshairVisible = true   -- If set to true then the crosshair would be visible and vice versa.
+_G.CrosshairSize = 80   -- The size of the crosshair.
+_G.CrosshairThickness = 2   -- The thickness of the crosshair.
+_G.CrosshairColor = Color3.fromRGB(0,0,255)   -- The color of the crosshair
+_G.CrosshairTransparency = 1   -- The transparency of the crosshair.
+
+_G.DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+
+RunService.RenderStepped:Connect(function()
+    local Real_Size = _G.CrosshairSize / 2
+
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = _G.CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = _G.CrosshairTransparency
+    
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = _G.CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = _G.CrosshairTransparency
+    
+    if _G.ToMouse == true then
+        HorizontalLine.From = Vector2.new(UserInputService:GetMouseLocation().X - Real_Size, UserInputService:GetMouseLocation().Y)
+        HorizontalLine.To = Vector2.new(UserInputService:GetMouseLocation().X + Real_Size, UserInputService:GetMouseLocation().Y)
+        
+        VerticalLine.From = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y - Real_Size)
+        VerticalLine.To = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y + Real_Size)
+    elseif _G.ToMouse == false then
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+    
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+if _G.DefaultSettings == true then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 70
+    _G.CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    _G.CrosshairTransparency = 0.15
+    _G.DisableKey = Enum.KeyCode.Q
+end
+
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.KeyCode == _G.DisableKey and Typing == false then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+        
+        if _G.SendNotifications == true then
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title = "Info";
+                Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
+                Duration = 5;
+            })
+        end
+    end
+end)
+    print("Pressed")
+end)
+
+
+
+local ExampleButton = Groupbox2:CreateButton("Sky Anti Lock", function()
+getgenv().Sky = true 
+getgenv().SkyAmount = 825
+
+game:GetService("RunService").heartbeat:Connect(function()
+    if getgenv().Sky ~= false then 
+    local vel = game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity
+    game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0,      getgenv().SkyAmount,0) 
+    game:GetService("RunService").RenderStepped:Wait()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = vel
+    end 
+end)
+    print("Pressed")
+end)
+
+
+
+local ExampleButton = Groupbox3:CreateButton("X Fly", function()
+    local plr = game.Players.LocalPlayer
+local mouse = plr:GetMouse()
+
+localplayer = plr
+
+if workspace:FindFirstChild("Core") then
+workspace.Core:Destroy()
+end
+
+local Core = Instance.new("Part")
+Core.Name = "Core"
+Core.Size = Vector3.new(0.05, 0.05, 0.05)
+
+spawn(function()
+Core.Parent = workspace
+local Weld = Instance.new("Weld", Core)
+Weld.Part0 = Core
+Weld.Part1 = localplayer.Character.LowerTorso
+Weld.C0 = CFrame.new(0, 0, 0)
+end)
+
+workspace:WaitForChild("Core")
+
+local torso = workspace.Core
+flying = true
+local speed= 150
+local keys={a=false,d=false,w=false,s=false}
+local e1
+local e2
+local function start()
+local pos = Instance.new("BodyPosition",torso)
+local gyro = Instance.new("BodyGyro",torso)
+pos.Name="EPIXPOS"
+pos.maxForce = Vector3.new(math.huge, math.huge, math.huge)
+pos.position = torso.Position
+gyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+gyro.cframe = torso.CFrame
+repeat
+wait()
+localplayer.Character.Humanoid.PlatformStand=true
+local new=gyro.cframe - gyro.cframe.p + pos.position
+if not keys.w and not keys.s and not keys.a and not keys.d then
+speed=5
+end
+if keys.w then
+new = new + workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+speed=speed+0
+end
+if keys.s then
+new = new - workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+speed=speed+0
+end
+if keys.d then
+new = new * CFrame.new(speed,0,0)
+speed=speed+0
+end
+if keys.a then
+new = new * CFrame.new(-speed,0,0)
+speed=speed+0
+end
+if speed>10 then
+speed=5
+end
+pos.position=new.p
+if keys.w then
+gyro.cframe = workspace.CurrentCamera.CoordinateFrame*CFrame.Angles(-math.rad(speed*0),0,0)
+elseif keys.s then
+gyro.cframe = workspace.CurrentCamera.CoordinateFrame*CFrame.Angles(math.rad(speed*0),0,0)
+else
+gyro.cframe = workspace.CurrentCamera.CoordinateFrame
+end
+until flying == false
+if gyro then gyro:Destroy() end
+if pos then pos:Destroy() end
+flying=false
+localplayer.Character.Humanoid.PlatformStand=false
+speed=100
+end
+e1=mouse.KeyDown:connect(function(key)
+if not torso or not torso.Parent then flying=false e1:disconnect() e2:disconnect() return end
+if key=="w" then
+keys.w=true
+elseif key=="s" then
+keys.s=true
+elseif key=="a" then
+keys.a=true
+elseif key=="d" then
+keys.d=true
+elseif key=="x" then
+if flying==true then
+flying=false
+else
+flying=true
+start()
+end
+end
+end)
+e2=mouse.KeyUp:connect(function(key)
+if key=="w" then
+keys.w=false
+elseif key=="s" then
+keys.s=false
+elseif key=="a" then
+keys.a=false
+elseif key=="d" then
+keys.d=false
+end
+end)
+    print("X fly")
+end)
+
+
+local ExampleSlider = Groupbox3:CreateSlider("Walk Speed", 16, 1000, 16, function(S)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = S
+    print(value)
+ end)
+
+
+
+ local ExampleSlider = Groupbox3:CreateSlider("Jump Heigh", 50, 500, 50, function(S)
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = S
+    print(value)
+ end)
+
+
+ local Groupbox10 = Tab2:CreateGroupbox("Player", "Right")
+
+ local ExampleButton = Groupbox10:CreateButton("NO Clip", function()
+    getgenv().Players = game:GetService'Players'
+getgenv().Host = Players.LocalPlayer
+getgenv().AddNotification = function(title, text) game:GetService'StarterGui':SetCore("SendNotification", {Title = title; Text = text;}) end
+getgenv().RunService = game:GetService'RunService';
+getgenv().ContextActionService = game:GetService'ContextActionService';
+
+local Noclip = true;
+local NoclipKey = 'J'; -- Change your key here
+
+RunService.RenderStepped:Connect(function()
+    if Noclip then
+        for _,v in pairs(Host.Character:GetDescendants()) do
+            if v:IsA'BasePart' and v.CanCollide then
+                v.CanCollide = false
+            end
+        end
+    else
+        for _,v in pairs(Host.Character:GetDescendants()) do
+            if v:IsA'BasePart' and not v.CanCollide then
+                v.CanCollide = true
+            end
+        end
+    end
+end)
+
+function Noclipping(ActionName:string, Properties:EnumItem)
+    if ActionName == 'Noclip' then
+        if not Properties or Properties == Enum.UserInputState.Begin then
+            Noclip = not Noclip
+            AddNotification('Noclip','Noclip is now - '..tostring(Noclip))
+        end
+    end
+end
+
+ContextActionService:BindAction('Noclip', Noclipping, true, Enum.KeyCode[NoclipKey])
+    print("Pressed")
+end)
+
+
+
+local ExampleButton = Groupbox10:CreateButton("Invisible (P) ", function()
+    --Settings:
+local ScriptStarted = false
+local Keybind = "P" --Set to whatever you want, has to be the name of a KeyCode Enum.
+local Transparency = true --Will make you slightly transparent when you are invisible. No reason to disable.
+local NoClip = false --Will make your fake character no clip.
+ 
+local Player = game:GetService("Players").LocalPlayer
+local RealCharacter = Player.Character or Player.CharacterAdded:Wait()
+ 
+local IsInvisible = false
+ 
+RealCharacter.Archivable = true
+local FakeCharacter = RealCharacter:Clone()
+local Part
+Part = Instance.new("Part", workspace)
+Part.Anchored = true
+Part.Size = Vector3.new(200, 1, 200)
+Part.CFrame = CFrame.new(0, -500, 0) --Set this to whatever you want, just far away from the map.
+Part.CanCollide = true
+FakeCharacter.Parent = workspace
+FakeCharacter.HumanoidRootPart.CFrame = Part.CFrame * CFrame.new(0, 5, 0)
+ 
+for i, v in pairs(RealCharacter:GetChildren()) do
+  if v:IsA("LocalScript") then
+      local clone = v:Clone()
+      clone.Disabled = true
+      clone.Parent = FakeCharacter
+  end
+end
+if Transparency then
+  for i, v in pairs(FakeCharacter:GetDescendants()) do
+      if v:IsA("BasePart") then
+          v.Transparency = 0.7
+      end
+  end
+end
+local CanInvis = true
+function RealCharacterDied()
+  CanInvis = false
+  RealCharacter:Destroy()
+  RealCharacter = Player.Character
+  CanInvis = true
+  isinvisible = false
+  FakeCharacter:Destroy()
+  workspace.CurrentCamera.CameraSubject = RealCharacter.Humanoid
+ 
+  RealCharacter.Archivable = true
+  FakeCharacter = RealCharacter:Clone()
+  Part:Destroy()
+  Part = Instance.new("Part", workspace)
+  Part.Anchored = true
+  Part.Size = Vector3.new(200, 1, 200)
+  Part.CFrame = CFrame.new(9999, 9999, 9999) --Set this to whatever you want, just far away from the map.
+  Part.CanCollide = true
+  FakeCharacter.Parent = workspace
+  FakeCharacter.HumanoidRootPart.CFrame = Part.CFrame * CFrame.new(0, 5, 0)
+ 
+  for i, v in pairs(RealCharacter:GetChildren()) do
+      if v:IsA("LocalScript") then
+          local clone = v:Clone()
+          clone.Disabled = true
+          clone.Parent = FakeCharacter
+      end
+  end
+  if Transparency then
+      for i, v in pairs(FakeCharacter:GetDescendants()) do
+          if v:IsA("BasePart") then
+              v.Transparency = 0.7
+          end
+      end
+  end
+ RealCharacter.Humanoid.Died:Connect(function()
+ RealCharacter:Destroy()
+ FakeCharacter:Destroy()
+ end)
+ Player.CharacterAppearanceLoaded:Connect(RealCharacterDied)
+end
+RealCharacter.Humanoid.Died:Connect(function()
+ RealCharacter:Destroy()
+ FakeCharacter:Destroy()
+ end)
+Player.CharacterAppearanceLoaded:Connect(RealCharacterDied)
+local PseudoAnchor
+game:GetService "RunService".RenderStepped:Connect(
+  function()
+      if PseudoAnchor ~= nil then
+          PseudoAnchor.CFrame = Part.CFrame * CFrame.new(0, 5, 0)
+      end
+       if NoClip then
+      FakeCharacter.Humanoid:ChangeState(11)
+       end
+  end
+)
+ 
+PseudoAnchor = FakeCharacter.HumanoidRootPart
+local function Invisible()
+  if IsInvisible == false then
+      local StoredCF = RealCharacter.HumanoidRootPart.CFrame
+      RealCharacter.HumanoidRootPart.CFrame = FakeCharacter.HumanoidRootPart.CFrame
+      FakeCharacter.HumanoidRootPart.CFrame = StoredCF
+      RealCharacter.Humanoid:UnequipTools()
+      Player.Character = FakeCharacter
+      workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
+      PseudoAnchor = RealCharacter.HumanoidRootPart
+      for i, v in pairs(FakeCharacter:GetChildren()) do
+          if v:IsA("LocalScript") then
+              v.Disabled = false
+          end
+      end
+ 
+      IsInvisible = true
+  else
+      local StoredCF = FakeCharacter.HumanoidRootPart.CFrame
+      FakeCharacter.HumanoidRootPart.CFrame = RealCharacter.HumanoidRootPart.CFrame
+ 
+      RealCharacter.HumanoidRootPart.CFrame = StoredCF
+ 
+      FakeCharacter.Humanoid:UnequipTools()
+      Player.Character = RealCharacter
+      workspace.CurrentCamera.CameraSubject = RealCharacter.Humanoid
+      PseudoAnchor = FakeCharacter.HumanoidRootPart
+      for i, v in pairs(FakeCharacter:GetChildren()) do
+          if v:IsA("LocalScript") then
+              v.Disabled = true
+          end
+      end
+      IsInvisible = false
+  end
+end
+ 
+game:GetService("UserInputService").InputBegan:Connect(
+  function(key, gamep)
+      if gamep then
+          return
+      end
+      if key.KeyCode.Name:lower() == Keybind:lower() and CanInvis and RealCharacter and FakeCharacter then
+          if RealCharacter:FindFirstChild("HumanoidRootPart") and FakeCharacter:FindFirstChild("HumanoidRootPart") then
+              Invisible()
+          end
+      end
+  end
+)
+local Sound = Instance.new("Sound",game:GetService("SoundService"))
+Sound.SoundId = "rbxassetid://232127604"
+Sound:Play()
+game:GetService("StarterGui"):SetCore("SendNotification",{["Title"] = "Invisible Toggle Loaded",["Text"] = "Press "..Keybind.." to become change visibility.",["Duration"] = 20,["Button1"] = "Okay."})
+    print("Pressed")
+end)
+
+local ExampleButton = Groupbox5:CreateButton("Name Tag", function()
+-- esp name tag puts tagname back on when died may be Glitchy
+ 
+-- Function to create RGB name tag for a player
+local function createRGBNameTag(player)
+    local tag = Instance.new("BillboardGui")
+    tag.Name = player.Name .. "_NameTag"
+    tag.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+    tag.Size = UDim2.new(0, 100, 0, 50)
+    tag.StudsOffset = Vector3.new(0, 3, 0)
+    tag.AlwaysOnTop = true  -- Ensures the text label is rendered on top of other objects
+ 
+    local label = Instance.new("TextLabel")
+    label.Parent = tag
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Text = player.Name
+    label.TextColor3 = Color3.new(math.random(), math.random(), math.random())
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.SourceSansBold
+    label.TextScaled = true
+ 
+    tag.Parent = game.Workspace.CurrentCamera
+end
+ 
+-- Function to update RGB name tag color
+local function updateRGBNameTagColor(player)
+    local tag = game.Workspace.CurrentCamera:FindFirstChild(player.Name .. "_NameTag")
+    if tag then
+        local label = tag:FindFirstChild("TextLabel")
+        if label then
+            label.TextColor3 = Color3.new(math.random(), math.random(), math.random())
+        end
+    end
+end
+ 
+-- Function to create RGB name tags for all players
+local function createAllRGBNameTags()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        createRGBNameTag(player)
+    end
+end
+ 
+-- Create RGB name tags for all players initially
+createAllRGBNameTags()
+ 
+-- Periodically create RGB name tags for all players every 5 seconds
+while true do
+    wait(5)
+    createAllRGBNameTags()
+end
+    print("Pressed")
+end)
+
+
+
+local ExampleButton = Groupbox5:CreateButton("Player Charms", function()
+local FillColor = Color3.fromRGB(175,25,255)
+local DepthMode = "AlwaysOnTop"
+local FillTransparency = 0
+local OutlineColor = Color3.fromRGB(255,255,255)
+local OutlineTransparency = 0
+ 
+local CoreGui = game:FindService("CoreGui")
+local Players = game:FindService("Players")
+local lp = Players.LocalPlayer
+local connections = {}
+ 
+local Storage = Instance.new("Folder")
+Storage.Parent = CoreGui
+Storage.Name = "Highlight_Storage"
+ 
+local function Highlight(plr)
+    local Highlight = Instance.new("Highlight")
+    Highlight.Name = plr.Name
+    Highlight.FillColor = FillColor
+    Highlight.DepthMode = DepthMode
+    Highlight.FillTransparency = FillTransparency
+    Highlight.OutlineColor = OutlineColor
+    Highlight.OutlineTransparency = 0
+    Highlight.Parent = Storage
+ 
+    local plrchar = plr.Character
+    if plrchar then
+        if plr ~= game.Players.LocalPlayer then
+        Highlight.Adornee = plrchar
+    end
+end
+ 
+    connections[plr] = plr.CharacterAdded:Connect(function(char)
+        Highlight.Adornee = char
+    end)
+end
+ 
+Players.PlayerAdded:Connect(Highlight)
+for i,v in next, Players:GetPlayers() do
+    if v ~= game.Players.LocalPlayer then
+    Highlight(v)
+end
+end
+ 
+Players.PlayerRemoving:Connect(function(plr)
+    local plrname = plr.Name
+    if Storage[plrname] then
+        Storage[plrname]:Destroy()
+    end
+    if connections[plr] then
+        connections[plr]:Disconnect()
+    end
+end)
+ 
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+--//Toggle\\--
+getgenv().Toggle = true -- This toggles the esp, turning it to false will turn it off
+getgenv().TC = false -- This toggles team check, turning it on will turn on team check
+local PlayerName = "" -- You can decide if you want the Player's name to be a display name which is "DisplayName", or username which is "Name"
+ 
+--//Variables\\--
+local P = game:GetService("Players")
+local LP = P.LocalPlayer
+ 
+--//Debounce\\--
+local DB = false
+ 
+--//Loop\\--
+while task.wait() do
+	if not getgenv().Toggle then
+		break
+	end
+	if DB then 
+		return 
+	end
+	DB = true
+ 
+	pcall(function()
+		for i,v in pairs(P:GetChildren()) do
+			if v:IsA("Player") then
+				if v ~= LP then
+					if v.Character then
+ 
+						local pos = math.floor(((LP.Character:FindFirstChild("HumanoidRootPart")).Position - (v.Character:FindFirstChild("HumanoidRootPart")).Position).magnitude)
+						-- Credits to Infinite Yield for this part (pos) ^^^^^^
+ 
+						if v.Character:FindFirstChild("Totally NOT Esp") == nil and v.Character:FindFirstChild("Icon") == nil and getgenv().TC == false then
+ 
+							--//ESP-Text\\--
+							local Icon = Instance.new("BillboardGui", v.Character.HumanoidRootPart)
+							local ESPText = Instance.new("TextLabel")
+ 
+							Icon.Name = "Icon"
+							Icon.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+							Icon.Active = true
+							Icon.AlwaysOnTop = true
+							Icon.ExtentsOffset = Vector3.new(0, 1, 0)
+							Icon.LightInfluence = 1.000
+							Icon.Size = UDim2.new(0, 800, 0, 50)
+ 
+							ESPText.Name = "ESP Text"
+							ESPText.Parent = Icon
+							ESPText.BackgroundColor3 = v.TeamColor.Color
+							ESPText.BackgroundTransparency = 1.000
+							ESPText.Size = UDim2.new(0, 800, 0, 50)
+							ESPText.Font = Enum.Font.SciFi
+							ESPText.Text = v[PlayerName]
+							ESPText.TextColor3 = v.TeamColor.Color
+							ESPText.TextSize = 20
+							ESPText.TextWrapped = false
+						else
+							if v.TeamColor ~= LP.TeamColor and v.Character:FindFirstChild("Totally NOT Esp") == nil and v.Character:FindFirstChild("Icon") == nil and getgenv().TC == true then
+ 
+ 
+								--//ESP-Text\\--
+								local Icon = Instance.new("BillboardGui", v.Character.HumanoidRootPart)
+								local ESPText = Instance.new("TextLabel")
+ 
+								Icon.Name = "Icon"
+								Icon.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+								Icon.Active = true
+								Icon.AlwaysOnTop = true
+								Icon.ExtentsOffset = Vector3.new(0, 1, 0)
+								Icon.LightInfluence = 1.000
+								Icon.Size = UDim2.new(0, 800, 0, 50)
+ 
+								ESPText.Name = "ESP Text"
+								ESPText.Parent = Icon
+								ESPText.BackgroundColor3 = v.TeamColor.Color
+								ESPText.BackgroundTransparency = 1.000
+								ESPText.Size = UDim2.new(0, 800, 0, 50)
+								ESPText.Font = Enum.Font.SciFi
+								ESPText.Text = v[PlayerName]
+								ESPText.TextColor3 = v.TeamColor.Color
+								ESPText.TextSize = 20
+								ESPText.TextWrapped = false
+							else
+								if not v.Character:FindFirstChild("Totally NOT Esp").FillColor == v.TeamColor.Color and not v.Character:FindFirstChild("Icon").TextColor3 == v.TeamColor.Color then
+									v.Character:FindFirstChild("Totally NOT Esp").FillColor = v.TeamColor.Color
+									v.Character:FindFirstChild("Icon").TextColor3 = v.TeamColor.Color
+								else
+									if v.Character:FindFirstChild("Totally NOT Esp").Enabled == false and v.Character:FindFirstChild("Icon").Enabled == false then
+										v.Character:FindFirstChild("Totally NOT Esp").Enabled = true
+										v.Character:FindFirstChild("Icon").Enabled = true
+									else
+										if v.Character:FindFirstChild("Icon") then
+											v.Character:FindFirstChild("Icon")["ESP Text"].Text = v[PlayerName]
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end)
+ 
+	wait()
+ 
+	DB = false
+end
+ 
+ 
+    print("Pressed")
+end)
+
+
+
+
+local ExampleButton = Groupbox5:CreateButton("Box ESP", function()
+-- Preview: https://cdn.discordapp.com/attachments/796378086446333984/818089455897542687/unknown.png
+-- Made by Blissful#4992
+local Settings = {
+    Box_Color = Color3.fromRGB(255, 0, 0),
+    Tracer_Color = Color3.fromRGB(255, 0, 0),
+    Tracer_Thickness = 1,
+    Box_Thickness = 1,
+    Tracer_Origin = "Bottom", -- Middle or Bottom if FollowMouse is on this won't matter...
+    Tracer_FollowMouse = false,
+    Tracers = false
+}
+local Team_Check = {
+    TeamCheck = false, -- if TeamColor is on this won't matter...
+    Green = Color3.fromRGB(0, 255, 0),
+    Red = Color3.fromRGB(255, 0, 0)
+}
+local TeamColor = true
+
+--// SEPARATION
+local player = game:GetService("Players").LocalPlayer
+local camera = game:GetService("Workspace").CurrentCamera
+local mouse = player:GetMouse()
+
+local function NewQuad(thickness, color)
+    local quad = Drawing.new("Quad")
+    quad.Visible = false
+    quad.PointA = Vector2.new(0,0)
+    quad.PointB = Vector2.new(0,0)
+    quad.PointC = Vector2.new(0,0)
+    quad.PointD = Vector2.new(0,0)
+    quad.Color = color
+    quad.Filled = false
+    quad.Thickness = thickness
+    quad.Transparency = 1
+    return quad
+end
+
+local function NewLine(thickness, color)
+    local line = Drawing.new("Line")
+    line.Visible = false
+    line.From = Vector2.new(0, 0)
+    line.To = Vector2.new(0, 0)
+    line.Color = color 
+    line.Thickness = thickness
+    line.Transparency = 1
+    return line
+end
+
+local function Visibility(state, lib)
+    for u, x in pairs(lib) do
+        x.Visible = state
+    end
+end
+
+local function ToColor3(col) --Function to convert, just cuz c;
+    local r = col.r --Red value
+    local g = col.g --Green value
+    local b = col.b --Blue value
+    return Color3.new(r,g,b); --Color3 datatype, made of the RGB inputs
+end
+
+local black = Color3.fromRGB(0, 0 ,0)
+local function ESP(plr)
+    local library = {
+        --//Tracer and Black Tracer(black border)
+        blacktracer = NewLine(Settings.Tracer_Thickness*2, black),
+        tracer = NewLine(Settings.Tracer_Thickness, Settings.Tracer_Color),
+        --//Box and Black Box(black border)
+        black = NewQuad(Settings.Box_Thickness*2, black),
+        box = NewQuad(Settings.Box_Thickness, Settings.Box_Color),
+        --//Bar and Green Health Bar (part that moves up/down)
+        healthbar = NewLine(3, black),
+        greenhealth = NewLine(1.5, black)
+    }
+
+    local function Colorize(color)
+        for u, x in pairs(library) do
+            if x ~= library.healthbar and x ~= library.greenhealth and x ~= library.blacktracer and x ~= library.black then
+                x.Color = color
+            end
+        end
+    end
+
+    local function Updater()
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            if plr.Character ~= nil and plr.Character:FindFirstChild("Humanoid") ~= nil and plr.Character:FindFirstChild("HumanoidRootPart") ~= nil and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild("Head") ~= nil then
+                local HumPos, OnScreen = camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+                if OnScreen then
+                    local head = camera:WorldToViewportPoint(plr.Character.Head.Position)
+                    local DistanceY = math.clamp((Vector2.new(head.X, head.Y) - Vector2.new(HumPos.X, HumPos.Y)).magnitude, 2, math.huge)
+                    
+                    local function Size(item)
+                        item.PointA = Vector2.new(HumPos.X + DistanceY, HumPos.Y - DistanceY*2)
+                        item.PointB = Vector2.new(HumPos.X - DistanceY, HumPos.Y - DistanceY*2)
+                        item.PointC = Vector2.new(HumPos.X - DistanceY, HumPos.Y + DistanceY*2)
+                        item.PointD = Vector2.new(HumPos.X + DistanceY, HumPos.Y + DistanceY*2)
+                    end
+                    Size(library.box)
+                    Size(library.black)
+
+                    --//Tracer 
+                    if Settings.Tracers then
+                        if Settings.Tracer_Origin == "Middle" then
+                            library.tracer.From = camera.ViewportSize*0.5
+                            library.blacktracer.From = camera.ViewportSize*0.5
+                        elseif Settings.Tracer_Origin == "Bottom" then
+                            library.tracer.From = Vector2.new(camera.ViewportSize.X*0.5, camera.ViewportSize.Y) 
+                            library.blacktracer.From = Vector2.new(camera.ViewportSize.X*0.5, camera.ViewportSize.Y)
+                        end
+                        if Settings.Tracer_FollowMouse then
+                            library.tracer.From = Vector2.new(mouse.X, mouse.Y+36)
+                            library.blacktracer.From = Vector2.new(mouse.X, mouse.Y+36)
+                        end
+                        library.tracer.To = Vector2.new(HumPos.X, HumPos.Y + DistanceY*2)
+                        library.blacktracer.To = Vector2.new(HumPos.X, HumPos.Y + DistanceY*2)
+                    else 
+                        library.tracer.From = Vector2.new(0, 0)
+                        library.blacktracer.From = Vector2.new(0, 0)
+                        library.tracer.To = Vector2.new(0, 0)
+                        library.blacktracer.To = Vector2.new(0, 02)
+                    end
+
+                    --// Health Bar
+                    local d = (Vector2.new(HumPos.X - DistanceY, HumPos.Y - DistanceY*2) - Vector2.new(HumPos.X - DistanceY, HumPos.Y + DistanceY*2)).magnitude 
+                    local healthoffset = plr.Character.Humanoid.Health/plr.Character.Humanoid.MaxHealth * d
+
+                    library.greenhealth.From = Vector2.new(HumPos.X - DistanceY - 4, HumPos.Y + DistanceY*2)
+                    library.greenhealth.To = Vector2.new(HumPos.X - DistanceY - 4, HumPos.Y + DistanceY*2 - healthoffset)
+
+                    library.healthbar.From = Vector2.new(HumPos.X - DistanceY - 4, HumPos.Y + DistanceY*2)
+                    library.healthbar.To = Vector2.new(HumPos.X - DistanceY - 4, HumPos.Y - DistanceY*2)
+
+                    local green = Color3.fromRGB(0, 255, 0)
+                    local red = Color3.fromRGB(255, 0, 0)
+
+                    library.greenhealth.Color = red:lerp(green, plr.Character.Humanoid.Health/plr.Character.Humanoid.MaxHealth);
+
+                    if Team_Check.TeamCheck then
+                        if plr.TeamColor == player.TeamColor then
+                            Colorize(Team_Check.Green)
+                        else 
+                            Colorize(Team_Check.Red)
+                        end
+                    else 
+                        library.tracer.Color = Settings.Tracer_Color
+                        library.box.Color = Settings.Box_Color
+                    end
+                    if TeamColor == true then
+                        Colorize(plr.TeamColor.Color)
+                    end
+                    Visibility(true, library)
+                else 
+                    Visibility(false, library)
+                end
+            else 
+                Visibility(false, library)
+                if game.Players:FindFirstChild(plr.Name) == nil then
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+    coroutine.wrap(Updater)()
+end
+
+for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+    if v.Name ~= player.Name then
+        coroutine.wrap(ESP)(v)
+    end
+end
+
+game.Players.PlayerAdded:Connect(function(newplr)
+    if newplr.Name ~= player.Name then
+        coroutine.wrap(ESP)(newplr)
+    end
+end)
+    print("Pressed")
+end)
+
+
+
+
+
+
+
+
+local ExampleButton = Groupbox4:CreateButton("FOV 50", function()
+    local FovNumber = 50 --Enter your FOV number here
+local Camera = workspace.CurrentCamera
+Camera.FieldOfView = FovNumber
+    print("")
+end)
+
+
+local ExampleButton = Groupbox4:CreateButton("FOV 70", function()
+    local FovNumber = 70 --Enter your FOV number here
+local Camera = workspace.CurrentCamera
+Camera.FieldOfView = FovNumber
+    print("")
+end)
+
+
+
+local ExampleButton = Groupbox4:CreateButton("FOV 85", function()
+    local FovNumber = 85 --Enter your FOV number here
+local Camera = workspace.CurrentCamera
+Camera.FieldOfView = FovNumber
+    print("")
+end)
+
+
+
+
+local ExampleButton = Groupbox4:CreateButton("FOV 95", function()
+    local FovNumber = 95 --Enter your FOV number here
+local Camera = workspace.CurrentCamera
+Camera.FieldOfView = FovNumber
+    print("")
+end)
+
+
+
+
+local ExampleButton = Groupbox4:CreateButton("FOV 100", function()
+    local FovNumber = 100 --Enter your FOV number here
+local Camera = workspace.CurrentCamera
+Camera.FieldOfView = FovNumber
+    print("")
+end)
+
+
+
+local ExampleButton = Groupbox4:CreateButton("FOV 120", function()
+    local FovNumber = 120 --Enter your FOV number here
+local Camera = workspace.CurrentCamera
+Camera.FieldOfView = FovNumber
+    print("")
+end)
+
+
+
+local Groupbox1 = Tab3:CreateGroupbox("Credits", "Left")
+
+local ExampleButton = Groupbox1:CreateButton("Script was mede by Jay ]", function()
+    print("Pressed")
+end)
+
+
+
+local Groupbox1 = Tab3:CreateGroupbox("Socials", "Left")
+
+local ExampleButton = Groupbox1:CreateButton("discord: jqdenfr", function()
+    print("Pressed")
+end)
+
+
+local ExampleButton = Groupbox1:CreateButton("youtube:erazedlol", function()
+    print("Pressed")
+end)
+
+
+
+
+
+
+ExampleToggle2:CreateKeyBind()
+
+
+
+-- Groupbox 2
+local ExampleToggle2 = Groupbox2:CreateToggle("Example toggle", function(state)
+   print(state)
+end)
+
+local ExampleToggle3 = Groupbox2:CreateToggle("Example keybind", function(state)
+   print(state)
+end)
+
+local ExampleButton2 = Groupbox2:CreateButton("Example Button", function()
+    print("Pressed")
+end)
+
+ExampleToggle3:CreateKeyBind()
+
+local ExampleSlider2 = Groupbox2:CreateSlider("Example slider", 0, 25, 0, function(value)
+   print(value)
+end)
+
+local ExampleDropdown2 = Groupbox2:CreateDropdown("Example Dropdown", {"Option 1", "Option 2", "Option 3"}, function(state)
+   print(state)
+end)
+
+local ExampleColorPicker2 = Groupbox2:CreateColorPicker("Color", Color3.fromRGB(0, 0, 0), function(state)
+   print(state.R, state.G, state.B)
+end)
+
+-- Groupbox 3
+local ExampleToggle4 = Groupbox3:CreateToggle("Example toggle", function(state)
+   print(state)
+end)
+
+local ExampleToggle5 = Groupbox3:CreateToggle("Example keybind", function(state)
+   print(state)
+end)
+
+local ExampleButton3 = Groupbox3:CreateButton("Example Button", function()
+    print("Pressed")
+end)
+
+ExampleToggle5:CreateKeyBind()
+
+local ExampleSlider3 = Groupbox3:CreateSlider("Example slider", 0, 25, 0, function(value)
+   print(value)
+end)
+
+local ExampleDropdown3 = Groupbox3:CreateDropdown("Example Dropdown", {"Option 1", "Option 2", "Option 3"}, function(state)
+   print(state)
+end)
+
+local ExampleColorPicker3 = Groupbox3:CreateColorPicker("Color", Color3.fromRGB(0, 0, 0), function(state)
+   print(state.R, state.G, state.B)
+end)
+
+-- Groupbox 4
+local ExampleToggle5 = Groupbox4:CreateToggle("Example toggle", function(state)
+   print(state)
+end)
+
+local ExampleToggle6 = Groupbox4:CreateToggle("Example keybind", function(state)
+   print(state)
+end)
+
+local ExampleButton4 = Groupbox4:CreateButton("Example Button", function()
+    print("Pressed")
+end)
+
+ExampleToggle6:CreateKeyBind()
+
+local ExampleSlider4 = Groupbox4:CreateSlider("Example slider", 0, 25, 0, function(value)
+   print(value)
+end)
+
+local ExampleDropdown4 = Groupbox4:CreateDropdown("Example Dropdown", {"Option 1", "Option 2", "Option 3"}, function(state)
+   print(state)
+end)
+
+local ExampleColorPicker4 = Groupbox4:CreateColorPicker("Color", Color3.fromRGB(0, 0, 0), function(state)
+   print(state.R, state.G, state.B)
+end) 
